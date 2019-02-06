@@ -7,11 +7,6 @@ library(wqTools)
 ui <-fluidPage(
 	
 	# Header
-	#headerPanel( title=div(img(src="deq_dwq_logo.png", height = 75, width = 75*2.85)),
-	#	tags$a(href="www.rstudio.com", "Click here!"),
-	#	windowTitle="Lake Profile Dashboard"),
-	
-	# Header
 	headerPanel(title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo.png', height = 75, width = 75*2.85)),
 		windowTitle="Lake Profile Dashboard"),
 		
