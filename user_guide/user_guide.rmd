@@ -29,8 +29,6 @@ In addition to displaying sites, site labels and polygons identifying assessment
 To turn on any of these layers, hover the mouse over the layers control box (top left of map, under zoom buttons) and select one or more layers. 
 Features are searchable by site and assessment unit names or identifier codes. To search for a feature, click the magnifier glass (top left of map, under the layers control box) and start topping. 
 Locations matching your search will appear as you type.  
-*Note:* The most recently drawn layer is "on top" of the map and is the only selectable feature. To ensure that the sites are selectable, just turn them off and back on in the layers control after 
-adding other features. 
 
 ![](map.png)  
 Figure 1. Map usage guide.
