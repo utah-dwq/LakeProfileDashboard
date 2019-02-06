@@ -37,6 +37,21 @@ Figure 1. Map usage guide.
 <br>
 <br>
 
+### Polygons
+#### Assessment units
+Assessment units show waterbodies in Utah that are assessed and reported on jointly. In the case of this application, these are all lakes or subsets of lakes.
+
+#### Beneficial uses
+All waterbodies in the State of Utah are assigned beneficial uses which describe the uses for which that waterbody is protected. 
+This polygon shows boundaries and descriptions for those uses. Categories include: drinking water supply, recreation, aquatic life, and agriculture. 
+See [R317-2-6. Use Designations](https://rules.utah.gov/publicat/code/r317/r317-002.htm#T8) for more information.
+
+#### Site specific standards
+For some waterbodies, site-specific standards that deviate from the state wide standards applied by beneficial use class have been developed. 
+This polygon shows the boundaries and applicable criteria for those site specific standards.
+<br>
+
+
 ## Outputs
 ### Time series
 The "Time series" tab shows three outputs summarizing patterns in temperature, dissolved oxygen, and pH across depth and time at the selected site.
