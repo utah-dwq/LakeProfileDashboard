@@ -1,7 +1,7 @@
 ## LakeProfileDashboard
 
 ### Description
-This repository holds source code for Utah DWQ's lake profile visualization and water quality assessment tool.
+This application is designed to interactively visualize lake profile data collected by DWQ and cooperators and provide a platform for performing and reviewing water quality assessments based on lake profile data.
 
 ### Running the application
 The application can be run on the [remote host](https://udwq.shinyapps.io/lakeprofiledashboard/).
