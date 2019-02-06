@@ -45,7 +45,8 @@ The "Time series" tab shows three outputs summarizing patterns in temperature, d
 #### Heatmap
 The "Heatmap" plot shows an interpolated surface of the user selected parameter across depth and date for the selected site.  Applicable water quality criteria are shown as red contour 
 lines if within the scale of the plot (figure 2). When DO/temp lens is the selected parameter, the z-axis is an interpolation between zero and one with one representing areas of the water column
-where either DO, temperature, or both does not meet the applicable water quality criteria. Zero represents zones of habitable water column.
+where either DO, temperature, or both does not meet the applicable water quality criteria. Zero represents zones of habitable water column. Note that depending on the frequency and 
+duration of exceedances, they may not always be visible in the interpolated figure.
 ![](heatmap.png)  
 Figure 2. Water column heatmap timeseries of water temperature. Red contour line labeled "20" indicates applicable water quality criterion.
 <br>
