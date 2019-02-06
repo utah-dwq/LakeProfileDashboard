@@ -49,7 +49,7 @@ ui <-fluidPage(
 				),
 				fluidRow(
 					column(4,h4("Profile plot"),plotOutput("ind_prof_plot", height="500px")),
-					column(8,h4("Profile data"),rhandsontable::rHandsontableOutput("profile_hot",height="500px"))
+					column(8,h4("Profile data"),div(dataTableOutput("profile_table"), style = "font-size:80%"))
 				)
 			),
 			tabPanel("User guide", 
@@ -180,12 +180,17 @@ server <- function(input, output, session){
 	})
 	
 	# Data table output
-	output$profile_hot=rhandsontable::renderRHandsontable({
+	observe({
 		req(reactive_objects$selectedActID)
-		hot_data=profiles_wide[profiles_wide$ActivityIdentifier==reactive_objects$selectedActID,c("IR_MLID","ActivityStartDate","Depth_m","DO_mgL","pH","Temp_degC")]
-		hot_data=hot_data[order(hot_data$Depth_m),]
-		rhandsontable::rhandsontable(data.frame(hot_data),readOnly=TRUE)
+		table_data=profiles_wide[profiles_wide$ActivityIdentifier==reactive_objects$selectedActID,c("IR_MLID","ActivityStartDate","Depth_m","DO_mgL","pH","Temp_degC")]
+		reactive_objects$table_data=table_data[order(table_data$Depth_m),]
 	})
+	output$profile_table=renderDataTable({
+		req(reactive_objects$table_data)
+		reactive_objects$table_data
+	},
+		options = list(scrollY = '500px', paging = FALSE, scrollX = TRUE, searching=F)
+	)
 	
 	# Extract profile assessments & profiles_wide for selected site
 	observe({
