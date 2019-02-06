@@ -289,7 +289,7 @@ server <- function(input, output, session){
 				}
 				if(input$heatmap_param=="DO/temp lens"){
 					parameter="do_temp_exc"
-					param_units="deg C"
+					param_units=""
 					param_lab="DO/temp exc."
 				}
 				# Define criteria
