@@ -7,13 +7,19 @@ library(wqTools)
 ui <-fluidPage(
 	
 	# Header
-	headerPanel( title=div(img(src="deq_dwq_logo.png", height = 75, width = 75*2.85)),
-		windowTitle="Lake Profile Dashboard"),
+	#headerPanel( title=div(img(src="deq_dwq_logo.png", height = 75, width = 75*2.85)),
+	#	tags$a(href="www.rstudio.com", "Click here!"),
+	#	windowTitle="Lake Profile Dashboard"),
 	
+	# Header
+	headerPanel(title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo.png', height = 75, width = 75*2.85)),
+		windowTitle="Lake Profile Dashboard"),
+		
 	# Title
 	titlePanel("",
 		tags$head(tags$link(rel = "icon", type = "image/png", href = "dwq_logo_small.png"),
 		tags$title("Lake Profile Dashboard"))
+		#tags$a(href="www.rstudio.com", "Click here!")
 	),
 	
 	# Input widgets
@@ -32,6 +38,7 @@ ui <-fluidPage(
 					conditionalPanel(condition="input.ts_plot_type=='Heatmap'",
 						selectInput("heatmap_param",label="Heatmap parameter:",choices=c("Dissolved oxygen","Temperature","pH", "DO/temp lens"))
 					),
+					checkboxInput("show_dates", label="Show all profile dates"),
 					conditionalPanel(condition="input.ts_plot_type=='Heatmap'",
 						plotOutput("heatmap")
 					),
@@ -219,7 +226,11 @@ server <- function(input, output, session){
 				ylim=c(0,max(reactive_objects$selected_prof_asmnts$max_depth_m,na.rm=T))
 			)
 			abline(h=3,lty=3,lwd=2,col="red")
-			axis(1, at=unique(reactive_objects$selected_prof_asmnts$ActivityStartDate), labels=unique(as.Date(reactive_objects$selected_prof_asmnts$ActivityStartDate)), par(las=2))
+			if(input$show_dates){
+				axis(1, at=unique(reactive_objects$selected_prof_asmnts$ActivityStartDate), labels=unique(as.Date(reactive_objects$selected_prof_asmnts$ActivityStartDate)), par(las=2))
+			}else{
+				axis.Date(1, reactive_objects$selected_prof_asmnts$ActivityStartDate)
+			}
 			points(max_depth_m~ActivityStartDate, data=reactive_objects$selected_prof_asmnts, type='l',lty=2,lwd=2,col="blue")
 			points(max_hab_width~ActivityStartDate, data=reactive_objects$selected_prof_asmnts, type='b', pch=21, cex=1.5, bg="grey", cex.axis=1.25, cex.lab=1.5)
 			par(xpd=TRUE)
@@ -240,7 +251,11 @@ server <- function(input, output, session){
 			plot(do_pct_exc~ActivityStartDate, data=reactive_objects$selected_prof_asmnts,ylim=c(0,ymax), pch=24, bg="deepskyblue3", type='b', ylab="% exceedance", cex=1.5, xlab="", xaxt='n')
 			points(temp_pct_exc~ActivityStartDate, data=reactive_objects$selected_prof_asmnts, pch=21, bg="orange", type='b', cex=1.5)
 			points(ph_pct_exc~ActivityStartDate, data=reactive_objects$selected_prof_asmnts, pch=22, bg="green", type='b', cex=1.5)
-			axis(1, at=unique(reactive_objects$selected_prof_asmnts$ActivityStartDate), labels=unique(as.Date(reactive_objects$selected_prof_asmnts$ActivityStartDate)), par(las=2))
+			if(input$show_dates){
+				axis(1, at=unique(reactive_objects$selected_prof_asmnts$ActivityStartDate), labels=unique(as.Date(reactive_objects$selected_prof_asmnts$ActivityStartDate)), par(las=2))
+			}else{
+				axis.Date(1, reactive_objects$selected_prof_asmnts$ActivityStartDate)
+			}
 			par(xpd=TRUE)
 			legend("topleft", inset=c(0.05,-0.3), bty='n',horiz=T,
 				legend=c("Dissolved oxygen","Temperature","pH"),
@@ -252,7 +267,6 @@ server <- function(input, output, session){
 	# Profile heatmap plot
 	output$heatmap=renderPlot({
 		req(reactive_objects$sel_profs_wide, reactive_objects$sel_profiles)
-		
 		if(dim(reactive_objects$sel_profs_wide)[1]>0){
 			if(length(unique(reactive_objects$sel_profs_wide$ActivityStartDate))==1){
 				plot.new()
@@ -288,8 +302,9 @@ server <- function(input, output, session){
 					criteria=unique(reactive_objects$sel_profiles[reactive_objects$sel_profiles$R3172ParameterName==name,"NumericCriterion"])
 				}else{criteria=1}
 				# heat map
-				profileHeatMap(reactive_objects$sel_profs_wide,parameter=parameter,param_units=param_units,param_lab=param_lab,depth="Depth_m",depth_units="m",criteria=criteria)
-			}
+				if(input$show_dates){show_dates=TRUE}else{show_dates=FALSE}
+				profileHeatMap(reactive_objects$sel_profs_wide,parameter=parameter,param_units=param_units,param_lab=param_lab,depth="Depth_m",depth_units="m",criteria=criteria,show_dates=show_dates)
+		}
 		}
 	})
 	
