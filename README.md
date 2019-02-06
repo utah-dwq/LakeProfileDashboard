@@ -1,7 +1,7 @@
 ## LakeProfileDashboard
 
 ### Description
-This application is designed to interactively visualize lake profile data collected by DWQ and cooperators and provide a platform for performing and reviewing water quality assessments based on lake profile data.
+This application is designed to interactively visualize lake profile data collected by DWQ and cooperators and provide a platform for performing and reviewing water quality assessments for aquatic life uses in lakes.
 
 ### Running the application
 The application can be run on the [remote host](https://udwq.shinyapps.io/lakeprofiledashboard/).
