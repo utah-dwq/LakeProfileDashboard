@@ -20,7 +20,7 @@ ui <-fluidPage(
 	# Input widgets
 	fluidRow(
 		conditionalPanel(condition="input.tabs!='User guide'",
-			column(4,h4("Click a site"),leaflet::leafletOutput("map", height="600px"))
+			column(4,h4("Click a site"),shinycssloaders::withSpinner(leaflet::leafletOutput("map", height="600px"),size=2, color="#0080b7"))
 		),
 		conditionalPanel(condition="input.tabs=='User guide'",
 			column(4)
@@ -66,7 +66,7 @@ ui <-fluidPage(
 )
 
 server <- function(input, output, session){
-
+	
 	# Load data
 	load("./data/assessed_profs.rdata")
 	
