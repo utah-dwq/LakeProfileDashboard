@@ -50,7 +50,7 @@ ui <-fluidPage(
 				),
 				fluidRow(
 					column(4,h4("Profile plot"),plotOutput("ind_prof_plot", height="500px")),
-					column(8,h4("Profile data"),div(dataTableOutput("profile_table"), style = "font-size:80%"))
+					column(8,h4("Profile data"),div(DT::dataTableOutput("profile_table"), style = "font-size:80%"))
 				)
 			),
 			tabPanel("User guide", 
@@ -183,16 +183,30 @@ server <- function(input, output, session){
 	# Data table output
 	observe({
 		req(reactive_objects$selectedActID)
-		table_data=profiles_wide[profiles_wide$ActivityIdentifier==reactive_objects$selectedActID,c("IR_MLID","ActivityStartDate","Depth_m","DO_mgL","pH","Temp_degC")]
+		table_data=profiles_wide[profiles_wide$ActivityIdentifier==reactive_objects$selectedActID,c("IR_MLID","ActivityStartDate","Depth_m","DO_mgL","pH","Temp_degC","do_exc","pH_exc","temp_exc")]
 		reactive_objects$table_data=table_data[order(table_data$Depth_m),]
 	})
-	output$profile_table=renderDataTable({
+	output$profile_table=DT::renderDataTable({
 		req(reactive_objects$table_data)
-		reactive_objects$table_data
-	},
-		options = list(scrollY = '500px', paging = FALSE, scrollX = TRUE, searching=F)
-	)
+		DT::datatable(reactive_objects$table_data, selection='multiple',
+			options = list(scrollY = '500px', paging = FALSE, scrollX = TRUE, searching=T)
+		) %>%
+		DT::formatStyle("DO_mgL", "do_exc", backgroundColor = DT::styleEqual(1, "orange"))  %>%
+		DT::formatStyle("pH", "pH_exc", backgroundColor = DT::styleEqual(1, "orange"))  %>%
+		DT::formatStyle("Temp_degC", "temp_exc", backgroundColor = DT::styleEqual(1, "orange"))
+	})
 	
+	proxy = DT::dataTableProxy('profile_table')
+	observe({
+		proxy %>% DT::hideCols(hide=which(names(reactive_objects$table_data) %in% c("do_exc","pH_exc","temp_exc")))
+	})
+	
+	# Extract selected rows...
+	#observeEvent(input$profile_table_rows_selected,{
+	#	print(input$profile_table_rows_selected)
+	#})
+
+
 	# Extract profile assessments & profiles_wide for selected site
 	observe({
 		req(reactive_objects$sel_mlid,input$date_slider)
