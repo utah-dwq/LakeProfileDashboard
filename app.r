@@ -14,7 +14,6 @@ ui <-fluidPage(
 	titlePanel("",
 		tags$head(tags$link(rel = "icon", type = "image/png", href = "dwq_logo_small.png"),
 		tags$title("Lake Profile Dashboard"))
-		#tags$a(href="www.rstudio.com", "Click here!")
 	),
 	
 	# Input widgets
