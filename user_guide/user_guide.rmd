@@ -85,7 +85,7 @@ the applicable water quality criterion was exceeded across time at the selected 
 The "Individual profiles" tab shows two outputs for a single profile collected at the selected site and date. 
 The first is a plot of temperature, dissolved oxygen, and pH against depth. On the single orofile plot applicable criteria for each parameter are plotted as horizontal lines 
 with colors corresponding to the colors used for plotting parameter points. The second output is a scrollable table of the data from that profile used to generate the plot. 
-In the profile table, cells are colored orange when water quality criteria for that parameter at that depth.
+In the profile table, cells are colored orange when a water quality criteron is exceeded for that parameter at that depth.
 <br>
 
 ## Package dependencies & credits
