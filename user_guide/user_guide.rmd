@@ -103,7 +103,8 @@ Special thanks to R packages leaflet, leaflet.extras, and Shiny.
 	plyr, 
 	rLakeAnalyzer, 
 	reshape2, 
-	sf  
+	sf,  
+	shinycssloaders
 ```
 
 ## Help & feedback
