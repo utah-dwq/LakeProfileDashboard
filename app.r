@@ -3,6 +3,7 @@
 ### Version 1.0, Feb 6 2019
 
 library(wqTools)
+library(magrittr)
 
 ui <-fluidPage(
 	
@@ -189,7 +190,7 @@ server <- function(input, output, session){
 	output$profile_table=DT::renderDataTable({
 		req(reactive_objects$table_data)
 		DT::datatable(reactive_objects$table_data, selection='multiple',
-			options = list(scrollY = '500px', paging = FALSE, scrollX = TRUE, searching=T)
+			options = list(scrollY = '500px', paging = FALSE, scrollX = TRUE, searching=F)
 		) %>%
 		DT::formatStyle("DO_mgL", "do_exc", backgroundColor = DT::styleEqual(1, "orange"))  %>%
 		DT::formatStyle("pH", "pH_exc", backgroundColor = DT::styleEqual(1, "orange"))  %>%
