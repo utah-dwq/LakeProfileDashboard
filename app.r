@@ -177,11 +177,17 @@ server <- function(input, output, session){
 		reactive_objects$sel_mlid=siteid
 	})
 	
-	
+	# Change map zoom on table click & update selected heatmap_param to selected row param
+	map_proxy=leaflet::leafletProxy("map")
 	observeEvent(input$table_input_rows_selected,{
+		lat=prof_sites[prof_sites$MonitoringLocationIdentifier==reactive_objects$sel_mlid,"LatitudeMeasure"]
+		long=prof_sites[prof_sites$MonitoringLocationIdentifier==reactive_objects$sel_mlid,"LongitudeMeasure"]
+		map_proxy %>% leaflet::setView(lng=long, lat=lat, zoom=12)
 		updateSelectInput(session, "heatmap_param",selected=reactive_objects$sel_param)
 	})
 
+	
+	# 
 	
 	# Select profiles & date options based on selected site ID
 	observe({
@@ -194,6 +200,13 @@ server <- function(input, output, session){
 	})
 	
 	
+	# Filter table to match clicked site from map
+	input_table_proxy = DT::dataTableProxy('table_input')
+	observeEvent(input$map_marker_click,{
+		input_table_proxy %>% DT::clearSearch() %>% DT::updateSearch(keywords = list(global = "", columns=c("",paste(reactive_objects$sel_mlid))))
+	})
+
+	
 	## Map polygon click
 	#observe({
 	#	req(profiles_long)
@@ -202,7 +215,6 @@ server <- function(input, output, session){
 	#	auid=au_click$id
 	#	print(au_click$id)
 	#})
-
 	
 	# Profile date selection
 	output$date_select <- renderUI({
@@ -258,9 +270,9 @@ server <- function(input, output, session){
 		DT::formatStyle("Temp_degC", "temp_exc", backgroundColor = DT::styleEqual(1, "orange"))
 	})
 	
-	proxy = DT::dataTableProxy('profile_table')
+	prof_table_proxy = DT::dataTableProxy('profile_table')
 	observe({
-		proxy %>% DT::hideCols(hide=which(names(reactive_objects$table_data) %in% c("do_exc","pH_exc","temp_exc")))
+		prof_table_proxy %>% DT::hideCols(hide=which(names(reactive_objects$table_data) %in% c("do_exc","pH_exc","temp_exc")))
 	})
 	
 	# Extract selected rows...
