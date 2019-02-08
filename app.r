@@ -19,13 +19,22 @@ ui <-fluidPage(
 	
 	# Input widgets
 	fluidRow(
-		conditionalPanel(condition="input.tabs!='User guide'",
-			column(4,h4("Click a site"),shinycssloaders::withSpinner(leaflet::leafletOutput("map", height="600px"),size=2, color="#0080b7"))
+		column(4,
+			conditionalPanel(condition="input.plot_tabs!='User guide'",
+				tabsetPanel(id="ui_tab",
+					tabPanel("Map",
+						column(12,h4("Click a site"),shinycssloaders::withSpinner(leaflet::leafletOutput("map", height="600px"),size=2, color="#0080b7"))
+					),
+					tabPanel("Table",
+						column(12)
+					)
+				)
+			),
+			conditionalPanel(condition="input.plot_tabs=='User guide'",
+				column(12)
+			)
 		),
-		conditionalPanel(condition="input.tabs=='User guide'",
-			column(4)
-		),
-		column(8,tabsetPanel(id="tabs",
+		column(8,tabsetPanel(id="plot_tabs",
 			tabPanel("Time series",
 				fluidRow(column(8,
 					uiOutput("date_slider"),
@@ -133,15 +142,26 @@ server <- function(input, output, session){
 	# Map marker click
 	observe({
 		req(profiles_long)
-		click <- input$map_marker_click
-		if (is.null(click)){return()}
-		siteid=click$id
+		site_click <- input$map_marker_click
+		if (is.null(site_click)){return()}
+		siteid=site_click$id
+		#print(site_click$id)
 		reactive_objects$sel_mlid=siteid
 		reactive_objects$sel_profiles=profiles_long[profiles_long$MonitoringLocationIdentifier==siteid,]
 		profile_dates=unique(reactive_objects$sel_profiles$ActivityStartDate)
 		profile_dates=profile_dates[order(profile_dates)]
 		reactive_objects$profile_dates=profile_dates
 	})
+
+	## Map polygon click
+	#observe({
+	#	req(profiles_long)
+	#	au_click <- input$map_shape_click
+	#	if (is.null(au_click)){return()}
+	#	auid=au_click$id
+	#	print(au_click$id)
+	#})
+
 		
 	# Profile date selection
 	output$date_select <- renderUI({
