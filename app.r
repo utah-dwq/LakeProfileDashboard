@@ -5,6 +5,10 @@
 library(wqTools)
 library(magrittr)
 
+
+heatmap_param_choices=c("Minimum Dissolved Oxygen","Temperature, water","pH","DO-temperature habitat profile width")
+names(heatmap_param_choices)=c("Dissolved oxygen", "Temperature", "pH", "DO/temperature lens")
+
 ui <-fluidPage(
 	
 	# Header
@@ -17,16 +21,18 @@ ui <-fluidPage(
 		tags$title("Lake Profile Dashboard"))
 	),
 	
+	#,
+	
 	# Input widgets
 	fluidRow(
-		column(4,
+		column(5,
 			conditionalPanel(condition="input.plot_tabs!='User guide'",
 				tabsetPanel(id="ui_tab",
 					tabPanel("Map",
 						column(12,h4("Click a site"),shinycssloaders::withSpinner(leaflet::leafletOutput("map", height="600px"),size=2, color="#0080b7"))
 					),
 					tabPanel("Table",
-						column(12)
+						column(12, h4("Click a site"), div(DT::dataTableOutput("table_input"), style = "font-size:70%"),size=2, color="#0080b7")
 					)
 				)
 			),
@@ -34,13 +40,14 @@ ui <-fluidPage(
 				column(12)
 			)
 		),
-		column(8,tabsetPanel(id="plot_tabs",
+		column(7,tabsetPanel(id="plot_tabs",
+			
 			tabPanel("Time series",
 				fluidRow(column(8,
 					uiOutput("date_slider"),
 					radioButtons("ts_plot_type","Plot type:", choices=c("Heatmap", "Habitable width", "Water column exceedances"), inline=T),
 					conditionalPanel(condition="input.ts_plot_type=='Heatmap'",
-						selectInput("heatmap_param",label="Heatmap parameter:",choices=c("Dissolved oxygen","Temperature","pH", "DO/temp lens"))
+						selectInput("heatmap_param",label="Heatmap parameter:",choices=heatmap_param_choices)
 					),
 					checkboxInput("show_dates", label="Show all profile dates"),
 					conditionalPanel(condition="input.ts_plot_type=='Heatmap'",
@@ -78,6 +85,7 @@ server <- function(input, output, session){
 	
 	# Load data
 	load("./data/assessed_profs.rdata")
+	
 	
 	# Subset polygons to lake polygons
 	data(au_poly)
@@ -122,9 +130,14 @@ server <- function(input, output, session){
 		do_pct_exc=do_exc_cnt/samp_count*100
 	})
 	
+	# Extract mlid/param level assessments
+	mlid_param_asmnts=assessed_profs$profile_asmnts_mlid_param
+	mlid_param_asmnts=mlid_param_asmnts[,!names(mlid_param_asmnts) %in% c("IR_Lat","IR_Long","BEN_CLASS","R317Descrp","IR_MLNAME","ASSESS_ID")]
+	
 	# Empty reactive values object
 	reactive_objects=reactiveValues()
-			
+	reactive_objects$sel_param="pH"
+	
 	# Resources for returning site info on click:
 	## https://stackoverflow.com/questions/28938642/marker-mouse-click-event-in-r-leaflet-for-shiny
 	## https://stackoverflow.com/questions/42613984/how-to-implement-inputmap-marker-click-correctly?noredirect=1&lq=1
@@ -139,20 +152,48 @@ server <- function(input, output, session){
 		})
     })
 	
-	# Map marker click
+	# Table interface
+	output$table_input=DT::renderDataTable({
+		DT::datatable(mlid_param_asmnts, selection='single', rownames=FALSE, filter="top",
+			options = list(scrollY = '600px', paging = FALSE, scrollX=TRUE, dom="ltipr")
+		)
+	})
+
+	# Map marker click (to identify selected site)
 	observe({
 		req(profiles_long)
 		site_click <- input$map_marker_click
 		if (is.null(site_click)){return()}
 		siteid=site_click$id
-		#print(site_click$id)
 		reactive_objects$sel_mlid=siteid
-		reactive_objects$sel_profiles=profiles_long[profiles_long$MonitoringLocationIdentifier==siteid,]
+	})
+
+	# Table row click (to identify selected site & parameter)
+	observe({
+		req(input$table_input_rows_selected)
+		row_click=input$table_input_rows_selected
+		siteid=mlid_param_asmnts[row_click,"IR_MLID"]
+		reactive_objects$sel_param=mlid_param_asmnts[row_click,"R3172ParameterName"]
+		reactive_objects$sel_mlid=siteid
+	})
+	
+	
+	observeEvent(input$table_input_rows_selected,{
+		updateSelectInput(session, "heatmap_param",selected=reactive_objects$sel_param)
+	})
+
+	
+	# Select profiles & date options based on selected site ID
+	observe({
+		req(reactive_objects$sel_mlid)
+		#print(reactive_objects$sel_mlid)
+		reactive_objects$sel_profiles=profiles_long[profiles_long$MonitoringLocationIdentifier==reactive_objects$sel_mlid,]
 		profile_dates=unique(reactive_objects$sel_profiles$ActivityStartDate)
 		profile_dates=profile_dates[order(profile_dates)]
 		reactive_objects$profile_dates=profile_dates
 	})
-
+	
+	
 	## Map polygon click
 	#observe({
 	#	req(profiles_long)
@@ -162,7 +203,7 @@ server <- function(input, output, session){
 	#	print(au_click$id)
 	#})
 
-		
+	
 	# Profile date selection
 	output$date_select <- renderUI({
 		req(reactive_objects$profile_dates)
@@ -244,7 +285,7 @@ server <- function(input, output, session){
 			profiles_wide$ActivityStartDate>=input$date_slider[1] &
 			profiles_wide$ActivityStartDate<=input$date_slider[2]
 		,]
-		})
+	})
 	
 	# Hab width plot output
 	output$hab_width=renderPlot({
@@ -303,7 +344,7 @@ server <- function(input, output, session){
 				box()
 			}else{
 				# Define heatmap inputs based on selected parameter
-				if(input$heatmap_param=="Dissolved oxygen"){
+				if(input$heatmap_param=="Minimum Dissolved Oxygen"){
 					name="Minimum Dissolved Oxygen"
 					parameter="DO_mgL"
 					param_units="mg/L"
@@ -315,19 +356,20 @@ server <- function(input, output, session){
 					param_units=""
 					param_lab="pH"
 				}
-				if(input$heatmap_param=="Temperature"){
+				if(input$heatmap_param=="Temperature, water"){
 					name="Temperature, water"
 					parameter="Temp_degC"
 					param_units="deg C"
 					param_lab="Temperature"
 				}
-				if(input$heatmap_param=="DO/temp lens"){
+				if(input$heatmap_param=="DO-temperature habitat profile width"){
+					name="DO/temperature lens"
 					parameter="do_temp_exc"
 					param_units=""
 					param_lab="DO/temp exc."
 				}
 				# Define criteria
-				if(input$heatmap_param!="DO/temp lens"){
+				if(input$heatmap_param!="DO-temperature habitat profile width"){
 					criteria=unique(reactive_objects$sel_profiles[reactive_objects$sel_profiles$R3172ParameterName==name,"NumericCriterion"])
 				}else{criteria=1}
 				# heat map
