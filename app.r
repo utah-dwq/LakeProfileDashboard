@@ -10,19 +10,19 @@ heatmap_param_choices=c("Minimum Dissolved Oxygen","Temperature, water","pH","DO
 names(heatmap_param_choices)=c("Dissolved oxygen", "Temperature", "pH", "DO/temperature lens")
 
 ui <-fluidPage(
-	
+
 	# Header
 	headerPanel(title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo.png', height = 75, width = 75*2.85)),
 		windowTitle="Lake Profile Dashboard"),
-		
+
 	# Title
 	titlePanel("",
 		tags$head(tags$link(rel = "icon", type = "image/png", href = "dwq_logo_small.png"),
 		tags$title("Lake Profile Dashboard"))
 	),
-	
+
 	#,
-	
+
 	# Input widgets
 	fluidRow(
 		column(5,
@@ -41,7 +41,7 @@ ui <-fluidPage(
 			)
 		),
 		column(7,tabsetPanel(id="plot_tabs",
-			
+
 			tabPanel("Time series",
 				fluidRow(column(8,
 					uiOutput("date_slider"),
@@ -70,7 +70,7 @@ ui <-fluidPage(
 					column(8,h4("Profile data"),div(DT::dataTableOutput("profile_table"), style = "font-size:80%"))
 				)
 			),
-			tabPanel("User guide", 
+			tabPanel("User guide",
 				fluidRow(
 					column(8,
 						includeMarkdown('./user_guide/user_guide.rmd')
@@ -85,25 +85,26 @@ server <- function(input, output, session){
 
 	# Loading modal to keep user out of trouble while map draws...
 	showModal(modalDialog(title="MAP LOADING - PLEASE WAIT...","Please wait for map to draw before proceeding.",size="l",footer=NULL))
-	
+
 	# Remove modal when app is ready
 	observe({
-		req(map,map_proxy)
+		req(map,mlid_param_asmnts)
 		removeModal()
 	})
-	
+
 	# Load data
-	load("./data/assessed_profs.rdata")	
-	
+	load("./data/assessed_profs.rdata")
+
+
 	# Subset polygons to lake polygons
 	data(au_poly)
 	lake_aus=au_poly[au_poly$AU_Type=="Reservoir/Lake",]
-	
+
 	# Extract site locations
 	prof_sites=unique(assessed_profs$profile_asmnts_mlid_param[,c("ASSESS_ID","AU_NAME","R317Descrp","BEN_CLASS","IR_MLID","IR_MLNAME","IR_Lat","IR_Long")])
 	prof_sites$MonitoringLocationTypeName="Lake/Reservoir"
 	prof_sites=plyr::rename(prof_sites, c("IR_Lat"="LatitudeMeasure", "IR_Long"="LongitudeMeasure","IR_MLID"="MonitoringLocationIdentifier","IR_MLNAME"="MonitoringLocationName"))
-		
+
 	# Extract profiles long
 	profiles_long=assessed_profs$profiles_long
 	profiles_long$MonitoringLocationIdentifier=profiles_long$IR_MLID
@@ -114,19 +115,19 @@ server <- function(input, output, session){
 	depths=profiles_long[profiles_long$R3172ParameterName=="Profile depth",]
 	depth_actids=unique(depths$ActivityIdentifier)
 	profiles_long=profiles_long[profiles_long$ActivityIdentifier %in% depth_actids,]
-	
+
 	# Remove any sites that do not produce any valid profiles
 	prof_sites=prof_sites[prof_sites$MonitoringLocationIdentifier %in% profiles_long$MonitoringLocationIdentifier,]
-	
+
 	# Extract profiles wide
 	profiles_wide=assessed_profs$profiles_wide
 	profiles_wide=profiles_wide[profiles_wide$ActivityIdentifier %in% profiles_long$ActivityIdentifier,]
 	profiles_wide$ActivityStartDate=as.Date(profiles_wide$ActivityStartDate,format='%Y-%m-%d')
-	
+
 	# Calc max depth for each profile
 	max_depth=aggregate(Depth_m~ActivityIdentifier,data=profiles_wide, FUN='max', na.rm=T)
 	names(max_depth)[names(max_depth)=="Depth_m"]="max_depth_m"
-	
+
 	# Extract individual profile assessments
 	ind_prof_asmnts=assessed_profs$profile_asmnts_individual
 	ind_prof_asmnts=ind_prof_asmnts[ind_prof_asmnts$ActivityIdentifier %in% profiles_long$ActivityIdentifier,]
@@ -137,19 +138,19 @@ server <- function(input, output, session){
 		temp_pct_exc=temp_exc_cnt/samp_count*100
 		do_pct_exc=do_exc_cnt/samp_count*100
 	})
-	
+
 	# Extract mlid/param level assessments
 	mlid_param_asmnts=assessed_profs$profile_asmnts_mlid_param
 	mlid_param_asmnts=mlid_param_asmnts[,!names(mlid_param_asmnts) %in% c("IR_Lat","IR_Long","BEN_CLASS","R317Descrp","IR_MLNAME","ASSESS_ID")]
-	
+
 	# Empty reactive values object
 	reactive_objects=reactiveValues()
-	
+
 	# Resources for returning site info on click:
 	## https://stackoverflow.com/questions/28938642/marker-mouse-click-event-in-r-leaflet-for-shiny
 	## https://stackoverflow.com/questions/42613984/how-to-implement-inputmap-marker-click-correctly?noredirect=1&lq=1
-	
-	
+
+
 	# Select map set up
     map = leaflet::createLeafletMap(session, 'map')
 
@@ -158,7 +159,7 @@ server <- function(input, output, session){
 			buildMap(sites=prof_sites, plot_polys=TRUE, au_poly=lake_aus)
 		})
     })
-	
+
 	# Table interface
 	output$table_input=DT::renderDataTable({
 		DT::datatable(mlid_param_asmnts, selection='single', rownames=FALSE, filter="top",
@@ -185,7 +186,7 @@ server <- function(input, output, session){
 		reactive_objects$sel_param=mlid_param_asmnts[row_click,"R3172ParameterName"]
 		reactive_objects$sel_mlid=siteid
 	})
-	
+
 	# Change map zoom on table click & update selected heatmap_param to selected row param
 	map_proxy=leaflet::leafletProxy("map")
 	observeEvent(input$table_input_rows_selected,{
@@ -195,9 +196,9 @@ server <- function(input, output, session){
 		updateSelectInput(session, "heatmap_param",selected=reactive_objects$sel_param)
 	})
 
-	
-	# 
-	
+
+	#
+
 	# Select profiles & date options based on selected site ID
 	observe({
 		req(reactive_objects$sel_mlid)
@@ -207,15 +208,15 @@ server <- function(input, output, session){
 		profile_dates=profile_dates[order(profile_dates)]
 		reactive_objects$profile_dates=profile_dates
 	})
-	
-	
+
+
 	# Filter table to match clicked site from map
 	input_table_proxy = DT::dataTableProxy('table_input')
 	observeEvent(input$map_marker_click,{
 		input_table_proxy %>% DT::clearSearch() %>% DT::updateSearch(keywords = list(global = "", columns=c("",paste(reactive_objects$sel_mlid))))
 	})
 
-	
+
 	## Map polygon click
 	#observe({
 	#	req(profiles_long)
@@ -224,7 +225,7 @@ server <- function(input, output, session){
 	#	auid=au_click$id
 	#	print(au_click$id)
 	#})
-	
+
 	# Profile date selection
 	output$date_select <- renderUI({
 		req(reactive_objects$profile_dates)
@@ -247,12 +248,12 @@ server <- function(input, output, session){
 	output$ind_prof_plot=renderPlot({
 		req(reactive_objects$sel_profiles,reactive_objects$selectedActID)
 		one_profile=reactive_objects$sel_profiles[reactive_objects$sel_profiles$ActivityIdentifier==reactive_objects$selectedActID,]
-		
+
 		do_crit=one_profile[one_profile$R3172ParameterName=="Minimum Dissolved Oxygen","NumericCriterion"][1]
 		temp_crit=one_profile[one_profile$R3172ParameterName=="Temperature, water","NumericCriterion"][1]
 
 		one_profile=unique(one_profile[,c("DataLoggerLine","ActivityIdentifier","ActivityStartDate","R3172ParameterName","IR_Value","IR_Unit","MonitoringLocationIdentifier")])
-		
+
 
 		profilePlot(one_profile, parameter = "R3172ParameterName",
 			units = "IR_Unit",
@@ -262,7 +263,7 @@ server <- function(input, output, session){
 			pH_crit=c(6.5,9), do_crit=do_crit, temp_crit=temp_crit)
 		box()
 	})
-	
+
 	# Data table output
 	observe({
 		req(reactive_objects$selectedActID)
@@ -278,12 +279,12 @@ server <- function(input, output, session){
 		DT::formatStyle("pH", "pH_exc", backgroundColor = DT::styleEqual(1, "orange"))  %>%
 		DT::formatStyle("Temp_degC", "temp_exc", backgroundColor = DT::styleEqual(1, "orange"))
 	})
-	
+
 	prof_table_proxy = DT::dataTableProxy('profile_table')
 	observe({
 		prof_table_proxy %>% DT::hideCols(hide=which(names(reactive_objects$table_data) %in% c("do_exc","pH_exc","temp_exc")))
 	})
-	
+
 	# Extract selected rows...
 	#observeEvent(input$profile_table_rows_selected,{
 	#	print(input$profile_table_rows_selected)
@@ -299,15 +300,15 @@ server <- function(input, output, session){
 			ind_prof_asmnts$ActivityStartDate<=input$date_slider[2]
 		,]
 		selected_prof_asmnts=selected_prof_asmnts[order(selected_prof_asmnts$ActivityStartDate),]
-		reactive_objects$selected_prof_asmnts=selected_prof_asmnts	
-		
+		reactive_objects$selected_prof_asmnts=selected_prof_asmnts
+
 		reactive_objects$sel_profs_wide=profiles_wide[
 			profiles_wide$IR_MLID == reactive_objects$sel_mlid &
 			profiles_wide$ActivityStartDate>=input$date_slider[1] &
 			profiles_wide$ActivityStartDate<=input$date_slider[2]
 		,]
 	})
-	
+
 	# Hab width plot output
 	output$hab_width=renderPlot({
 		req(reactive_objects$selected_prof_asmnts)
@@ -336,9 +337,9 @@ server <- function(input, output, session){
 		req(reactive_objects$selected_prof_asmnts)
 		if(dim(reactive_objects$selected_prof_asmnts)[1]>0){
 			ymax=max(5,max(max(reactive_objects$selected_prof_asmnts$do_pct_exc, na.rm=T),max(reactive_objects$selected_prof_asmnts$temp_pct_exc, na.rm=T),max(reactive_objects$selected_prof_asmnts$ph_pct_exc, na.rm=T))*1.1)
-			
+
 			par(mar=c(7.1,5.1,7.1,2.1))
-	
+
 			plot(do_pct_exc~ActivityStartDate, data=reactive_objects$selected_prof_asmnts,ylim=c(0,ymax), pch=24, bg="deepskyblue3", type='b', ylab="% exceedance", cex=1.5, xlab="", xaxt='n')
 			points(temp_pct_exc~ActivityStartDate, data=reactive_objects$selected_prof_asmnts, pch=21, bg="orange", type='b', cex=1.5)
 			points(ph_pct_exc~ActivityStartDate, data=reactive_objects$selected_prof_asmnts, pch=22, bg="green", type='b', cex=1.5)
@@ -399,9 +400,9 @@ server <- function(input, output, session){
 		}
 		}
 	})
-	
+
 
 }
 
-## run app 
+## run app
 shinyApp(ui = ui, server = server)
