@@ -1,6 +1,6 @@
 ### Utah DWQ Lake Profile Dashboard
 ### Jake Vander Laan, Utah DWQ, jvander@utah.gov
-### Version 1.0, Feb 6 2019
+### Version 1.1, Feb 8 2019
 
 library(wqTools)
 library(magrittr)
