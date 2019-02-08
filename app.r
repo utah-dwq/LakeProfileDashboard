@@ -82,6 +82,15 @@ ui <-fluidPage(
 )
 
 server <- function(input, output, session){
+
+	# Loading modal to keep user out of trouble while map draws...
+	showModal(modalDialog(title="MAP LOADING - PLEASE WAIT...","Please wait for map to draw before proceeding.",size="l",footer=NULL))
+	
+	# Remove modal when app is ready
+	observe({
+		req(map,mlid_param_asmnts)
+		removeModal()
+	})
 	
 	# Load data
 	load("./data/assessed_profs.rdata")
@@ -155,7 +164,9 @@ server <- function(input, output, session){
 	# Table interface
 	output$table_input=DT::renderDataTable({
 		DT::datatable(mlid_param_asmnts, selection='single', rownames=FALSE, filter="top",
-			options = list(scrollY = '600px', paging = FALSE, scrollX=TRUE, dom="ltipr")
+			options = list(scrollY = '600px', paging = FALSE, scrollX=TRUE, dom="ltipr"#,
+				#searchCols = list(NULL,list(search=paste(reactive_objects$sel_mlid)))
+			)
 		)
 	})
 
