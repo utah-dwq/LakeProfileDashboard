@@ -18,7 +18,13 @@ areas meeting dissolved oxygen and temperature criteria for that waterbody (see 
 <br>
 
 ## Application usage
-The main application input is via map selection. To build plots for any individual site, click on your desired site. 
+The application has two main inputs: a map and a table. To build plots for any individual site, click on your desired site in either the map or the table.  
+
+The map shows all sites with profile data available. The table shows all of those sites and their associated uses and assessments for each parameter.  
+
+The map and table inputs are responsive to eachother. When you click a site on the map, the table will automatically filter to assessments associated with that site. 
+When you click on a row in the table, the map will automatically fly to that site location.  
+
 Plots specific to that site will be rendered automatically. Several data plotting and review options are available.
 Outputs will automatically render any time the user updates one of the input widgets.
 <br>
