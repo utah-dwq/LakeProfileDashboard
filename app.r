@@ -10,7 +10,11 @@ heatmap_param_choices=c("Minimum Dissolved Oxygen","Temperature, water","pH","DO
 names(heatmap_param_choices)=c("Dissolved oxygen", "Temperature", "pH", "DO/temperature lens")
 
 ui <-fluidPage(
-
+tags$head(
+      tags$script(src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/3.5.16/iframeResizer.contentWindow.min.js",
+                  type="text/javascript")
+      ),
+	  
 	# Header
 	headerPanel(title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo.png', height = 75, width = 75*2.85)),
 		windowTitle="Lake Profile Dashboard"),
@@ -221,7 +225,7 @@ server <- function(input, output, session){
 	#observe({
 	#	req(profiles_long)
 	#	au_click <- input$map_shape_click
-	#	if (is.null(au_click)){return()}
+	#	#if (is.null(au_click)){return()}
 	#	auid=au_click$id
 	#	print(au_click$id)
 	#})
