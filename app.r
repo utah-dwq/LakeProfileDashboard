@@ -16,13 +16,9 @@ tags$head(
       ),
 	  
 	# Header
-	headerPanel(title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo.png', height = 75, width = 75*2.85)),
-		windowTitle="Lake Profile Dashboard"),
-
-	# Title
-	titlePanel("",
-		tags$head(tags$link(rel = "icon", type = "image/png", href = "dwq_logo_small.png"),
-		tags$title("Lake Profile Dashboard"))
+	headerPanel(
+		title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo.png', height = 75, width = 75*2.85), target="_blank"),
+		tags$head(tags$link(rel = "icon", type = "image/png", href = "dwq_logo_small.png"), windowTitle="Lake profile dashboard")
 	),
 
 	#,
@@ -36,7 +32,7 @@ tags$head(
 						column(12,h4("Click a site"),shinycssloaders::withSpinner(leaflet::leafletOutput("map", height="600px"),size=2, color="#0080b7"))
 					),
 					tabPanel("Table",
-						column(12, h4("Click a site"), div(DT::dataTableOutput("table_input"), style = "font-size:70%"),size=2, color="#0080b7")
+						column(12, h4("Click a site"), div(DT::dataTableOutput("table_input"), style = "font-size:70%"))
 					)
 				)
 			),
