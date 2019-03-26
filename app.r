@@ -142,7 +142,8 @@ server <- function(input, output, session){
 	# Extract mlid/param level assessments
 	mlid_param_asmnts=assessed_profs$profile_asmnts_mlid_param
 	mlid_param_asmnts=mlid_param_asmnts[,!names(mlid_param_asmnts) %in% c("IR_Lat","IR_Long","BEN_CLASS","R317Descrp","IR_MLNAME","ASSESS_ID")]
-
+	names(mlid_param_asmnts)[names(mlid_param_asmnts)=='IR_Cat']='prelim_asmnt'
+	
 	# Empty reactive values object
 	reactive_objects=reactiveValues()
 
