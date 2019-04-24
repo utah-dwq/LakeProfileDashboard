@@ -5,7 +5,9 @@ date: "Feb 5 2019"
 ---
 
 ## Introduction
-This application is designed to interactively visualize lake profile data collected by DWQ and cooperators and provide a platform for performing and reviewing aquatic life use based water quality assessments based on lake profile data.
+This application is designed to interactively visualize lake profile data collected by DWQ and cooperators and provide a platform for performing and reviewing aquatic life use based water quality assessments based on lake profile data.  
+Source code and additional information for this application are available via the [DWQ Lake Profile Dashboard GitHub repository](https://github.com/utah-dwq/LakeProfileDashboard) .  
+This application is available under an [MIT license](https://github.com/utah-dwq/LakeProfileDashboard/blob/master/LICENSE) .  
 <br>
 
 ## Data
@@ -65,8 +67,14 @@ The "Time series" tab shows three outputs summarizing patterns in temperature, d
 #### Heatmap
 The "Heatmap" plot shows an interpolated surface of the user selected parameter across depth and date for the selected site.  Applicable water quality criteria are shown as red contour
 lines if within the scale of the plot (figure 2). When DO/temp lens is the selected parameter, the z-axis is an interpolation between zero and one with one representing areas of the water column
-where either DO, temperature, or both does not meet the applicable water quality criteria. Zero represents zones of habitable water column. Note that depending on the relative frequency and
-duration of exceedances, they may not always be visible in the interpolated figure.
+where either DO, temperature, or both does not meet the applicable water quality criteria. Zero represents zones of habitable water column.  
+
+<br>
+> **NOTES:**  
+> 1. The heatmap figure will interpolate across the entire time period for which data are available. Interpolations across time periods with few measured profiles should be interpreted carefully.  Use the 'Show all profile dates' checkbox to identify individual profile measurements on the figure.  
+> 2. Depending on the relative frequency and duration of exceedances, water quality standards may not always be visible in the interpolated figure.  
+
+<br>  
 ![](heatmap.png)  
 Figure 2. Water column heatmap timeseries of water temperature. Red contour line labeled "20" indicates applicable water quality criterion.
 <br>

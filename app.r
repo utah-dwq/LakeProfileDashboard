@@ -17,7 +17,7 @@ tags$head(
 	  
 	# Header
 	headerPanel(
-		title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo.png', height = 75, width = 75*2.85), target="_blank"),
+		title=tags$a(href='https://deq.utah.gov/division-water-quality/',tags$img(src='deq_dwq_logo_draft.png', height = 125, width = 100*2.85*1.75), target="_blank"),
 		tags$head(tags$link(rel = "icon", type = "image/png", href = "dwq_logo_small.png"), windowTitle="Lake profile dashboard")
 	),
 
@@ -49,7 +49,7 @@ tags$head(
 					conditionalPanel(condition="input.ts_plot_type=='Heatmap'",
 						selectInput("heatmap_param",label="Heatmap parameter:",choices=heatmap_param_choices)
 					),
-					checkboxInput("show_dates", label="Show all profile dates"),
+					checkboxInput("show_dates", label="Show all profile dates", value=TRUE),
 					conditionalPanel(condition="input.ts_plot_type=='Heatmap'",
 						plotOutput("heatmap")
 					),
