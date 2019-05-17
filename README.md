@@ -1,4 +1,5 @@
 ## LakeProfileDashboard
+**This application is still undergoing active development.**
 
 ### Description
 This application is designed to interactively visualize lake profile data collected by DWQ and cooperators and provide a platform for performing and reviewing water quality assessments for aquatic life uses in lakes.
